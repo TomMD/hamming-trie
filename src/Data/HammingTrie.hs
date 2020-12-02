@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Data.HammingTrie
     ( Trie
@@ -21,11 +22,9 @@ module Data.HammingTrie
     -- , delete
     ) where
 
-import Control.Monad (guard)
 import Data.List (foldl')
-import Data.Vector (Vector,(!),(!?))
+import Data.Vector (Vector,(!?))
 import qualified Data.Vector as V
-import Data.Monoid
 import Data.Maybe (listToMaybe)
 
 class TrieKey k where
