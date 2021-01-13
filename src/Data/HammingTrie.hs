@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-} -- Syntax
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE ConstraintKinds #-}
@@ -6,8 +6,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Data.HammingTrie
     ( Trie
