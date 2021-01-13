@@ -1,12 +1,11 @@
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE TypeFamilyDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedLabels #-}
 
 module Data.HammingTrie
     ( Trie
