@@ -15,7 +15,6 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce src artifact
-          uses: actions/checkout@v2
           run: |
               echo "run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF" > lift-src-results.json
               env
