@@ -15,8 +15,11 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce src artifact
+          uses: actions/checkout@v2
           run: |
               echo "run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF" > lift-src-results.json
+              env
+              cat $GITHUB_EVENT_PATH
               echo $(git -C "$GITHUB_WORKSPACE" rev-parse "$GITHUB_HEAD_REF" | tail -n 1) > lift-commit
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
@@ -53,6 +56,8 @@ jobs:
     #         username: tommd
     #         password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
+        - name: Checkout
+          uses: actions/checkout@v2
         - name: Get Dst
           uses: actions/download-artifact@v2
           with:
