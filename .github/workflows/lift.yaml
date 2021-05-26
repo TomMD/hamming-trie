@@ -6,11 +6,11 @@ jobs:
   analyze_src:
     name: Source Branch Analysis
     runs-on: ubuntu-latest
-    container:
-        image: musedev/analyst
-        credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+    # container:
+    #     image: musedev/analyst
+    #     credentials:
+    #         username: tommd
+    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
@@ -25,11 +25,11 @@ jobs:
   analyze_dst:
     name: Destination Branch Analysis
     runs-on: ubuntu-latest
-    container:
-        image: musedev/analyst
-        credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+    # container:
+    #     image: musedev/analyst
+    #     credentials:
+    #         username: tommd
+    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
@@ -42,14 +42,14 @@ jobs:
             path: lift-dst-results.json
 
   unify_results:
-    name: Result Distination
+    name: Distill Result
     needs: [analyze_src, analyze_dst]
     runs-on: ubuntu-latest
-    container:
-        image: musedev/analyst
-        credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+    # container:
+    #     image: musedev/analyst
+    #     credentials:
+    #         username: tommd
+    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Get Dst
           uses: actions/download-artifact@v2
@@ -71,13 +71,15 @@ jobs:
             script: |
                 const { promises: fs } = require('fs')
                 // WRONG! const {GITHUB_SHA} = process.env
+                const {GITHUB_HEAD_REF} = process.env
                 console.log('Context sha: ' + context.sha)
+                console.log('head ref: ' + GITHUB_HEAD_REF)
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    // commit_id: context.sha,
+                    commit_id: GITHUB_HEAD_REF,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
