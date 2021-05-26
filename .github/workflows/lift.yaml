@@ -9,7 +9,7 @@ jobs:
     container:
         image: musedev/analyst
         credentials:
-            username: muse-bot
+            username: tommd
             password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
