@@ -22,10 +22,7 @@ jobs:
           uses: actions/upload-artifact@v2
           with:
             name: lift_src_results
-            path: lift-src-results.json
-          with:
-            name: lift_commit
-            path: lift-commit
+            path: lift*
 
   analyze_dst:
     name: Destination Branch Analysis
