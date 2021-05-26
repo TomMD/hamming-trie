@@ -3,7 +3,7 @@ name: Lift
 on: pull_request
 
 jobs:
-  analyze:
+  analyze_src:
     name: Lift Static Analysis
     runs-on: ubuntu-latest
     container:
@@ -15,16 +15,35 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce artifact
-          run: "echo \"run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json\" > lift-results.json"
+          run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF\" > lift-src-results.json"
         - name: Upload artiffact
           uses: actions/upload-artifact@v2
           with:
-            name: lift_results
-            path: lift-results.json
+            name: lift_src_results
+            path: lift-src-results.json
+
+  analyze_dst:
+    name: Lift Static Analysis
+    runs-on: ubuntu-latest
+    container:
+        image: musedev/analyst
+        credentials:
+            username: tommd
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v2
+        - name: Produce artifact
+          run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_BASE_REF\" > lift-dst-results.json"
+        - name: Upload artiffact
+          uses: actions/upload-artifact@v2
+          with:
+            name: lift_dst_results
+            path: lift-dst-results.json
 
   comment_on_pr:
     name: Post Lift Comments
-    needs: analyze
+    needs: [analyze_src, analyze_dst]
     runs-on: ubuntu-latest
     steps:
         - name: Get status
@@ -38,12 +57,14 @@ jobs:
             script: |
                 const { promises: fs } = require('fs')
                 // body = 'Hello world!'
-                const body = await fs.readFile('lift-results.json', 'utf8')
+                const src_input = await fs.readFile('lift-src-results.json', 'utf8')
+                const dst_input = await fs.readFile('lift-dst-results.json', 'utf8')
+                const body = src_input + ' --> ' + dst_input
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
                     body // ,
-                    // path,
-                    // position
+                    path: 'src/Data/HammingTrie.hs',
+                    position: 11
                     });
