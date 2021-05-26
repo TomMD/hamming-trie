@@ -64,37 +64,20 @@ jobs:
               cat lift-dst-results.json > lift-results.json
               echo '-----' >> lift-results.json
               cat lift-src-results.json >> lift-results.json
-        - name: Upload final artifact
-          uses: actions/upload-artifact@v2
-          with:
-              name: lift_results
-              path: lift-results.json
-
-  comment_on_pr:
-    name: Post Comments
-    needs: unify_results
-    runs-on: ubuntu-latest
-    steps:
-        - name: Get status
-          uses: actions/download-artifact@v2
-          with:
-            name: lift_results
         - name: Post comments
           uses: actions/github-script@v4
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
                 const { promises: fs } = require('fs')
-                const {GITHUB_SHA} = process.env
-                console.log('Analysis was triggered by commit: ' + GITHUB_SHA)
+                // WRONG! const {GITHUB_SHA} = process.env
                 console.log('Context sha: ' + context.sha)
-                console.log(process.env)
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    commit_id: context.sha,
+                    // commit_id: context.sha,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
