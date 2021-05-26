@@ -86,12 +86,15 @@ jobs:
             script: |
                 const { promises: fs } = require('fs')
                 const {GITHUB_SHA} = process.env
+                console.log('Analysis was triggered by commit: ' + GITHUB_SHA)
+                console.log('Context sha: ' + context.sha)
+                console.log(process.env)
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    commit_id: GITHUB_SHA,
+                    commit_id: context.sha,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
