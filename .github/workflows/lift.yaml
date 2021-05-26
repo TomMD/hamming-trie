@@ -58,9 +58,11 @@ jobs:
           uses: actions/github-script@v4
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
+            env:
+                SHA_SRC: '${{GITHUB_HEAD_REF}}'
             script: |
                 const { promises: fs } = require('fs')
-                // body = 'Hello world!'
+                const {SHA} = process.env
                 const src_input = await fs.readFile('lift-src-results.json', 'utf8')
                 const dst_input = await fs.readFile('lift-dst-results.json', 'utf8')
                 const body = src_input + ' --> ' + dst_input
@@ -68,9 +70,8 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    comments: [ {
-                        body,
-                        path: 'src/Data/HammingTrie.hs',
-                        position: 11
-                        }]
+                    commit_id: `${SHA}`,
+                    body,
+                    path: 'src/Data/HammingTrie.hs',
+                    position: 11,
                     });
