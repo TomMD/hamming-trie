@@ -1,0 +1,46 @@
+name: Lift
+
+on: pull_request
+
+jobs:
+  analyze:
+    name: Lift Static Analysis
+    runs-on: ubuntu-latest
+    container:
+        image: musedev/analyst
+        credentials:
+            username: muse-bot
+            password: ${{ DOCKER_MUSE_BOT }}
+    steps:
+        - name: Produce artifact
+          uses: actions/checkout@v2
+          run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json
+        - name: Upload artiffact
+          uses: actions/upload-artifact@v2
+          with:
+            name: lift_results
+            path: lift-results.json
+
+  comment_on_pr:
+    name: Post Lift Comments
+    needs: analyze
+    runs-on: ubuntu-latest
+    steps:
+        - name: Get status
+          uses: actions/download-artifact@v2
+          with:
+            name: lift_results
+        - name: Post comments
+          uses: actions/github-script@v4
+          with:
+            github-token: ${{secrets.GITHUB_TOKEN}}
+            script: |
+              body = 'Hello world!'
+              github.pulls.createReviewComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: context.issue.number,
+                    body // ,
+                    // path,
+                    // position
+                    });
