@@ -31,14 +31,15 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: lift_results
+        - name: Convert status
+          run: cat lift-results.json >> LIFT_RESULTS
         - name: Post comments
           uses: actions/github-script@v4
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
               // body = 'Hello world!'
-              const path = core.getInput('lift-results.json')
-              const body = await fs.readFile(path, 'utf8')
+              const body = env.LIFT_RESULTS
               github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
