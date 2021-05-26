@@ -1,10 +1,10 @@
-name: Lift
+name: MuseDev
 
 on: pull_request
 
 jobs:
   analyze_src:
-    name: Lift Static Analysis
+    name: Source Branch Analysis
     runs-on: ubuntu-latest
     container:
         image: musedev/analyst
@@ -23,7 +23,7 @@ jobs:
             path: lift-src-results.json
 
   analyze_dst:
-    name: Lift Static Analysis
+    name: Destination Branch Analysis
     runs-on: ubuntu-latest
     container:
         image: musedev/analyst
@@ -42,7 +42,7 @@ jobs:
             path: lift-dst-results.json
 
   unify_results:
-    name: Lift Static Analys Result Composition
+    name: Result Distination
     needs: [analyze_src, analyze_dst]
     runs-on: ubuntu-latest
     container:
@@ -71,7 +71,7 @@ jobs:
               path: lift-results.json
 
   comment_on_pr:
-    name: Post Lift Comments
+    name: Post Comments
     needs: unify_results
     runs-on: ubuntu-latest
     steps:
