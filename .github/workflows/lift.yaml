@@ -15,12 +15,17 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce src artifact
-          run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF\" > lift-src-results.json"
+          run: |
+              echo "run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF" > lift-src-results.json
+              echo "$(git -C $GITHUB_WORKSPACE rev-parse --head $GITHUB_HEAD_REF)" > lift-commit
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
             name: lift_src_results
             path: lift-src-results.json
+          with:
+            name: lift_commit
+            path: lift-commit
 
   analyze_dst:
     name: Destination Branch Analysis
@@ -59,6 +64,10 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: lift_src_results
+        - name: Get Commit
+          uses: actions/download-artifact@v2
+          with:
+            name: lift_commit
         - name: Combine
           run: |
               cat lift-dst-results.json > lift-results.json
@@ -70,16 +79,15 @@ jobs:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
                 const { promises: fs } = require('fs')
-                // WRONG! const {GITHUB_SHA} = process.env
-                const {GITHUB_HEAD_REF} = process.env
+                const commit = await fs.readFile('lift-commit', 'utf8')
                 console.log('Context sha: ' + context.sha)
-                console.log('head ref: ' + GITHUB_HEAD_REF)
+                console.log('Real sha: ' + commit)
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    commit_id: GITHUB_HEAD_REF,
+                    commit_id: commit,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
