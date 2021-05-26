@@ -51,7 +51,6 @@ jobs:
             username: tommd
             password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
-        - name: Result Interpreter
         - name: Get Dst
           uses: actions/download-artifact@v2
           with:
