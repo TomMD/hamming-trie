@@ -12,9 +12,10 @@ jobs:
             username: muse-bot
             password: ${{ DOCKER_MUSE_BOT }}
     steps:
-        - name: Produce artifact
+        - name: Checkout
           uses: actions/checkout@v2
-          run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json
+        - name: Produce artifact
+          run: echo "run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json " > lift-results.json
         - name: Upload artiffact
           uses: actions/upload-artifact@v2
           with:
@@ -35,7 +36,9 @@ jobs:
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
-              body = 'Hello world!'
+              // body = 'Hello world!'
+              const path = core.getInput('lift-results.json')
+              const body = await fs.readFile(path, 'utf8')
               github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
