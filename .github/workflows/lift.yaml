@@ -15,7 +15,7 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce artifact
-          run: echo "run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json " > lift-results.json
+          run: "echo \"run: lift-diff --dir $GITHUB_WORKSPACE --src $GITHUB_HEAD_REF --dst $GITHUB_BASE_REF -o lift-results.json\" > lift-results.json"
         - name: Upload artiffact
           uses: actions/upload-artifact@v2
           with:
