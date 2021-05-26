@@ -14,9 +14,9 @@ jobs:
     steps:
         - name: Checkout
           uses: actions/checkout@v2
-        - name: Produce artifact
+        - name: Produce src artifact
           run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF\" > lift-src-results.json"
-        - name: Upload artiffact
+        - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
             name: lift_src_results
@@ -33,9 +33,9 @@ jobs:
     steps:
         - name: Checkout
           uses: actions/checkout@v2
-        - name: Produce artifact
+        - name: Produce dst artifact
           run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_BASE_REF\" > lift-dst-results.json"
-        - name: Upload artiffact
+        - name: Upload dst artifact
           uses: actions/upload-artifact@v2
           with:
             name: lift_dst_results
@@ -64,6 +64,8 @@ jobs:
               cat lift-dst-results.json > lift-results.json
               echo '-----' >> lift-results.json
               cat lift-src-results.json >> lift-results.json
+        - name: Upload final artifact
+          uses: actions/upload-artifact@v2
           with:
               name: lift_results
               path: lift-results.json
