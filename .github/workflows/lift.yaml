@@ -36,9 +36,6 @@ jobs:
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
-                'use strict'
-
-                const core = require('@actions/core')
                 const { promises: fs } = require('fs')
                 // body = 'Hello world!'
                 const body = env.LIFT_RESULTS
