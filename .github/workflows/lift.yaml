@@ -17,7 +17,7 @@ jobs:
         - name: Produce src artifact
           run: |
               echo "run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF" > lift-src-results.json
-              echo "$(git -C $GITHUB_WORKSPACE rev-parse --head $GITHUB_HEAD_REF)" > lift-commit
+              echo $(git -C "$GITHUB_WORKSPACE" rev-parse "$GITHUB_HEAD_REF") > lift-commit
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
