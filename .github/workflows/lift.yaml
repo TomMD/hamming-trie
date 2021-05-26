@@ -41,19 +41,43 @@ jobs:
             name: lift_dst_results
             path: lift-dst-results.json
 
+  unify_results:
+    name: Lift Static Analys Result Composition
+    needs: [analyze_src, analyze_dst]
+    runs-on: ubuntu-latest
+    container:
+        image: musedev/analyst
+        credentials:
+            username: tommd
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
+    steps:
+        - name: Result Interpreter
+        - name: Get Dst
+          uses: actions/download-artifact@v2
+          with:
+            name: lift_dst_results
+        - name: Get Src
+          uses: actions/download-artifact@v2
+          with:
+            name: lift_src_results
+        - name: Combine
+          run: |
+              cat lift-dst-results.json > lift-results.json
+              echo '-----' >> lift-results.json
+              cat lift-src-results.json >> lift-results.json
+          with:
+              name: lift_results
+              path: lift-results.json
+
   comment_on_pr:
     name: Post Lift Comments
-    needs: [analyze_src, analyze_dst]
+    needs: unify_results
     runs-on: ubuntu-latest
     steps:
         - name: Get status
           uses: actions/download-artifact@v2
           with:
-            name: lift_dst_results
-        - name: Get status
-          uses: actions/download-artifact@v2
-          with:
-            name: lift_src_results
+            name: lift_results
         - name: Post comments
           uses: actions/github-script@v4
           env:
@@ -63,14 +87,12 @@ jobs:
             script: |
                 const { promises: fs } = require('fs')
                 const {SHA} = process.env
-                const src_input = await fs.readFile('lift-src-results.json', 'utf8')
-                const dst_input = await fs.readFile('lift-dst-results.json', 'utf8')
-                const body = src_input + ' --> ' + dst_input
+                const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    commit_id: `${SHA}`,
+                    commit_id: `${SHA_SRC}`,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
