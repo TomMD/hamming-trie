@@ -61,10 +61,6 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: lift_src_results
-        - name: Get Commit
-          uses: actions/download-artifact@v2
-          with:
-            name: lift_commit
         - name: Combine
           run: |
               cat lift-dst-results.json > lift-results.json
