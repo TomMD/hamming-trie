@@ -57,7 +57,7 @@ jobs:
         - name: Post comments
           uses: actions/github-script@v4
           env:
-            SHA_SRC: '${{GITHUB_HEAD_REF}}'
+            SHA_SRC: '${{ env.GITHUB_HEAD_REF }}'
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
