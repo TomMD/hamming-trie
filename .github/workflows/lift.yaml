@@ -56,10 +56,10 @@ jobs:
             name: lift_src_results
         - name: Post comments
           uses: actions/github-script@v4
+          env:
+            SHA_SRC: '${{GITHUB_HEAD_REF}}'
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
-            env:
-                SHA_SRC: '${{GITHUB_HEAD_REF}}'
             script: |
                 const { promises: fs } = require('fs')
                 const {SHA} = process.env
