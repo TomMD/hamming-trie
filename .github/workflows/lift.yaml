@@ -81,19 +81,17 @@ jobs:
             name: lift_results
         - name: Post comments
           uses: actions/github-script@v4
-          env:
-            SHA_SRC: ${{env.GITHUB_SHA}}
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
                 const { promises: fs } = require('fs')
-                const {SHA_SRC} = process.env
+                const {GITHUB_SHA} = process.env
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    commit_id: SHA_SRC,
+                    commit_id: GITHUB_SHA,
                     body,
                     path: 'src/Data/HammingTrie.hs',
                     position: 11,
