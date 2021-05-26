@@ -38,7 +38,7 @@ jobs:
             script: |
                 const { promises: fs } = require('fs')
                 // body = 'Hello world!'
-                const body = env.LIFT_RESULTS
+                const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
