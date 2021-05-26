@@ -68,7 +68,9 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
-                    body,
-                    path: 'src/Data/HammingTrie.hs',
-                    position: 11
+                    comments: [ {
+                        body,
+                        path: 'src/Data/HammingTrie.hs',
+                        position: 11
+                        }]
                     });
