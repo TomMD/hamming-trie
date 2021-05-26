@@ -31,16 +31,18 @@ jobs:
           uses: actions/download-artifact@v2
           with:
             name: lift_results
-        - name: Convert status
-          run: cat lift-results.json >> LIFT_RESULTS
         - name: Post comments
           uses: actions/github-script@v4
           with:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
-              // body = 'Hello world!'
-              const body = env.LIFT_RESULTS
-              github.pulls.createReviewComment({
+                'use strict'
+
+                const core = require('@actions/core')
+                const { promises: fs } = require('fs')
+                // body = 'Hello world!'
+                const body = env.LIFT_RESULTS
+                github.pulls.createReviewComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     pull_number: context.issue.number,
