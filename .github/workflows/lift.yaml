@@ -10,7 +10,7 @@ jobs:
         image: musedev/analyst
         credentials:
             username: muse-bot
-            password: ${{ DOCKER_MUSE_BOT }}
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
