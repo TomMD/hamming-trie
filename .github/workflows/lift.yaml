@@ -86,7 +86,7 @@ jobs:
             github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
                 const { promises: fs } = require('fs')
-                const {SHA} = process.env
+                const {SHA_SRC} = process.env
                 const body = await fs.readFile('lift-results.json', 'utf8')
                 github.pulls.createReviewComment({
                     owner: context.repo.owner,
