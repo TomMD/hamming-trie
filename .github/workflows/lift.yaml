@@ -73,7 +73,7 @@ jobs:
             name: lift_src_results
         - name: Combine
           run: |
-              createGithubCommentJSON --diff-file lift.git.diff --src-results lift-src-results.json --dst-results lift-dst-results.json > github-comments.json
+              createGithubCommentJSON lift.git.diff lift-src-results.json lift-dst-results.json > github-comments.json
         - name: Post comments
           uses: actions/github-script@v4
           with:
