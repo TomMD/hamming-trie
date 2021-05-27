@@ -21,7 +21,7 @@ jobs:
               export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
               analyst -t "$GITHUB_WORKSPACE" -C $SRC_SHA > lift-src-results.json
               cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
-              echo "$SRC_SHA" > lift-commit
+              echo -n "$SRC_SHA" > lift-commit
               echo -n "Source commit: " ; cat lift-commit
               echo "SRC_SHA -> DST_SHA:  $SRC_SHA -> $DST_SHA"
               git -C $GITHUB_WORKSPACE diff ${DST_SHA}..${SRC_SHA} > lift.git.diff
