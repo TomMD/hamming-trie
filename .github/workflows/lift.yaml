@@ -6,20 +6,24 @@ jobs:
   analyze_src:
     name: Source Branch Analysis
     runs-on: ubuntu-latest
-    # container:
-    #     image: musedev/analyst
-    #     credentials:
-    #         username: tommd
-    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
+    container:
+        image: musedev/analyst
+        credentials:
+            username: tommd
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce src artifact
           run: |
-              echo "run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_HEAD_REF" > lift-src-results.json
+              analyst -t "$GITHUB_WORKSPACE" -C $(git rev-parse $GITHUB_HEAD_REF) > lift-src-results.json
+              cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
               cat $GITHUB_EVENT_PATH | jq -r -j .after > lift-commit
-              cat lift-commit
-              ls -la "$GITHUB_WORKSPACE"
+              echo -n "Source commit: " ; cat lift-commit
+              export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .after)
+              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .before)
+              echo "SRC_SHA -> DST_SHA:  $SRC_SHA -> $DST_SHA"
+              git -C $GITHUB_WORKSPACE diff ${DST_SHA}..${SRC_SHA} > lift.git.diff
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
@@ -29,16 +33,18 @@ jobs:
   analyze_dst:
     name: Destination Branch Analysis
     runs-on: ubuntu-latest
-    # container:
-    #     image: musedev/analyst
-    #     credentials:
-    #         username: tommd
-    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
+    container:
+        image: musedev/analyst
+        credentials:
+            username: tommd
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Checkout
           uses: actions/checkout@v2
         - name: Produce dst artifact
-          run: "echo \"run: analyst -t $GITHUB_WORKSPACE -C $GITHUB_BASE_REF\" > lift-dst-results.json"
+          run: |
+              analyst -t "$GITHUB_WORKSPACE" -C $(git rev-parse $GITHUB_BASE_REF) > lift-dst-results.json
+              cat lift-dst-results.json | jq . | sed 's/\\n/\n/g'
         - name: Upload dst artifact
           uses: actions/upload-artifact@v2
           with:
@@ -67,9 +73,7 @@ jobs:
             name: lift_src_results
         - name: Combine
           run: |
-              cat lift-dst-results.json > lift-results.json
-              echo '-----' >> lift-results.json
-              cat lift-src-results.json >> lift-results.json
+              createGithubCommentJSON --diff-file lift.git.diff --src-results lift-src-results.json --dst-results lift-dst-results.json > github-comments.json
         - name: Post comments
           uses: actions/github-script@v4
           with:
@@ -79,13 +83,12 @@ jobs:
                 const commit = await fs.readFile('lift-commit', 'utf8')
                 console.log('Context sha: ' + context.sha)
                 console.log('Real sha: ' + commit)
-                const body = await fs.readFile('lift-results.json', 'utf8')
-                github.pulls.createReviewComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: context.issue.number,
-                    commit_id: commit,
-                    body,
-                    path: 'src/Data/HammingTrie.hs',
-                    position: 11,
-                    });
+                const comments = await fs.readFile('github-comments.json', 'utf8')
+                for(const comment of JSON.parse(comments)) {
+                    github.pulls.createReviewComment({
+                        ...comment,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        pull_number: context.issue.number,
+                        commit_id: commit,
+                        });
