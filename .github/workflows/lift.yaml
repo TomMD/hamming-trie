@@ -14,6 +14,8 @@ jobs:
     steps:
         - name: Checkout
           uses: actions/checkout@v2
+          with:
+              fetch-depth: 0
         - name: Produce src artifact
           run: |
               export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .after)
@@ -41,9 +43,12 @@ jobs:
     steps:
         - name: Checkout
           uses: actions/checkout@v2
+          with:
+              fetch-depth: 0
         - name: Produce dst artifact
           run: |
-              analyst -t "$GITHUB_WORKSPACE" -C $(git rev-parse $GITHUB_BASE_REF) > lift-dst-results.json
+              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .before)
+              analyst -t "$GITHUB_WORKSPACE" -C $DST_SHA > lift-dst-results.json
               cat lift-dst-results.json | jq . | sed 's/\\n/\n/g'
         - name: Upload dst artifact
           uses: actions/upload-artifact@v2
@@ -61,8 +66,6 @@ jobs:
     #         username: tommd
     #         password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
         - name: Get Dst
           uses: actions/download-artifact@v2
           with:
