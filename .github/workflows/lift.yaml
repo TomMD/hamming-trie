@@ -12,8 +12,7 @@ jobs:
             username: tommd
             password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
+        - uses: actions/checkout@v2
           with:
               fetch-depth: 0
         - name: Produce src artifact
@@ -41,8 +40,7 @@ jobs:
             username: tommd
             password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
+        - uses: actions/checkout@v2
           with:
               fetch-depth: 0
         - name: Produce dst artifact
@@ -60,11 +58,11 @@ jobs:
     name: Distill Result
     needs: [analyze_src, analyze_dst]
     runs-on: ubuntu-latest
-    # container:
-    #     image: musedev/analyst
-    #     credentials:
-    #         username: tommd
-    #         password: ${{ secrets.DOCKER_MUSE_BOT }}
+    container:
+        image: musedev/github-comment-composer
+        credentials:
+            username: tommd
+            password: ${{ secrets.DOCKER_MUSE_BOT }}
     steps:
         - name: Get Dst
           uses: actions/download-artifact@v2
@@ -76,7 +74,7 @@ jobs:
             name: lift_src_results
         - name: Combine
           run: |
-              createGithubCommentJSON lift.git.diff lift-src-results.json lift-dst-results.json > github-comments.json
+              github-comment-composer lift.git.diff lift-src-results.json lift-dst-results.json > github-comments.json
         - name: Post comments
           uses: actions/github-script@v4
           with:
