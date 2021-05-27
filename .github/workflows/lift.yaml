@@ -17,8 +17,8 @@ jobs:
               fetch-depth: 0
         - name: Produce src artifact
           run: |
-              export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .after)
-              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .before)
+              export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.head.sha)
+              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
               analyst -t "$GITHUB_WORKSPACE" -C $SRC_SHA > lift-src-results.json
               cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
               echo "$SRC_SHA" > lift-commit
@@ -45,7 +45,7 @@ jobs:
               fetch-depth: 0
         - name: Produce dst artifact
           run: |
-              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .before)
+              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
               analyst -t "$GITHUB_WORKSPACE" -C $DST_SHA > lift-dst-results.json
               cat lift-dst-results.json | jq . | sed 's/\\n/\n/g'
         - name: Upload dst artifact
