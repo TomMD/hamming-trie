@@ -62,9 +62,10 @@ jobs:
         #       .... put shell script to install build dependencies if needed
         - name: Produce dst artifact
           run: |
-              if [ -z "$GITHUB_BASE_SHA" ] ; then 
+              env
+              if [ -z "$GITHUB_BASE_SHA" ] ; then
                 export DST_SHA="$GITHUB_SHA"
-              else 
+              else
                 export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
               fi
               analyst -t "$GITHUB_WORKSPACE" -C $DST_SHA > lift-dst-results.json
