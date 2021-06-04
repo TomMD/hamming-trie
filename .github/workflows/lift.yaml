@@ -27,8 +27,8 @@ jobs:
                 echo "This is not a pull request."
                 echo "Look for any result in the 'Destination Branch Analysis' job"
               else
-                export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.head.sha)
-                export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
+                export SRC_SHA=$GITHUB_HEAD_REF
+                export DST_SHA=$GITHUB_BASE_REF
                 analyst -t "$GITHUB_WORKSPACE" -C $SRC_SHA > lift-src-results.json
                 cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
                 echo -n "$SRC_SHA" > lift-commit
@@ -63,10 +63,10 @@ jobs:
         - name: Produce dst artifact
           run: |
               env
-              if [ -z "$GITHUB_BASE_SHA" ] ; then
+              if [ -z "$GITHUB_BASE_REF" ] ; then
                 export DST_SHA="$GITHUB_SHA"
               else
-                export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
+                export DST_SHA="$GITHUB_BASE_REF"
               fi
               analyst -t "$GITHUB_WORKSPACE" -C $DST_SHA > lift-dst-results.json
               cat lift-dst-results.json | jq . | sed 's/\\n/\n/g'
