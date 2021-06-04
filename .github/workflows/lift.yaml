@@ -1,6 +1,6 @@
 name: MuseDev
 
-on: pull_request
+on: [pull_request, workflow_dispatch]
 
 jobs:
   analyze_src:
@@ -9,13 +9,13 @@ jobs:
     container:
         image: musedev/analyst
         credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     steps:
         - uses: actions/checkout@v2
           with:
               fetch-depth: 0
-        # - name: Setup build environemtn
+        # - name: Setup build environment
         #   env:
         #       nexus_token: ${{ secrets.MY_NEXUS_TOKEN }}
         #   run: |
@@ -23,14 +23,19 @@ jobs:
         #       .... put shell script to install build dependencies if needed
         - name: Produce src artifact
           run: |
-              export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.head.sha)
-              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
-              analyst -t "$GITHUB_WORKSPACE" -C $SRC_SHA > lift-src-results.json
-              cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
-              echo -n "$SRC_SHA" > lift-commit
-              echo -n "Source commit: " ; cat lift-commit
-              echo "SRC_SHA -> DST_SHA:  $SRC_SHA -> $DST_SHA"
-              git -C $GITHUB_WORKSPACE diff ${DST_SHA}..${SRC_SHA} > lift.git.diff
+              if [[ -z "$GITHUB_BASE_REF" ]] ; then
+                echo "This is not a pull request."
+                echo "Look for any result in the 'Destination Branch Analysis' job"
+              else
+                export SRC_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.head.sha)
+                export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
+                analyst -t "$GITHUB_WORKSPACE" -C $SRC_SHA > lift-src-results.json
+                cat lift-src-results.json | jq . | sed 's/\\n/\n/g'
+                echo -n "$SRC_SHA" > lift-commit
+                echo -n "Source commit: " ; cat lift-commit
+                echo "SRC_SHA -> DST_SHA:  $SRC_SHA -> $DST_SHA"
+                git -C $GITHUB_WORKSPACE diff ${DST_SHA}..${SRC_SHA} > lift.git.diff
+             fi
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
@@ -43,13 +48,13 @@ jobs:
     container:
         image: musedev/analyst
         credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     steps:
         - uses: actions/checkout@v2
           with:
               fetch-depth: 0
-        # - name: Setup build environemtn
+        # - name: Setup build environment
         #   env:
         #       nexus_token: ${{ secrets.MY_NEXUS_TOKEN }}
         #   run: |
@@ -57,7 +62,7 @@ jobs:
         #       .... put shell script to install build dependencies if needed
         - name: Produce dst artifact
           run: |
-              export DST_SHA=$(cat $GITHUB_EVENT_PATH | jq -r -j .pull_request.base.sha)
+              export DST_SHA=$(if [[ -z "$GITHUB_BASE_SHA" ]] ; then ; echo "$GITHUB_SHA" ; else ; echo "$GITHUB_BASE_SHA" ; fi)
               analyst -t "$GITHUB_WORKSPACE" -C $DST_SHA > lift-dst-results.json
               cat lift-dst-results.json | jq . | sed 's/\\n/\n/g'
         - name: Upload dst artifact
@@ -73,8 +78,8 @@ jobs:
     container:
         image: musedev/github-comment-composer
         credentials:
-            username: tommd
-            password: ${{ secrets.DOCKER_MUSE_BOT }}
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     steps:
         - name: Get Dst
           uses: actions/download-artifact@v2
