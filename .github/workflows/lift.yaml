@@ -35,7 +35,7 @@ jobs:
                 echo -n "Source commit: " ; cat lift-commit
                 echo "SRC_SHA -> DST_SHA:  $SRC_SHA -> $DST_SHA"
                 git -C $GITHUB_WORKSPACE diff ${DST_SHA}..${SRC_SHA} > lift.git.diff
-             fi
+              fi
         - name: Upload src artifact
           uses: actions/upload-artifact@v2
           with:
