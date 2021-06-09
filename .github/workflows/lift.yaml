@@ -105,7 +105,6 @@ jobs:
                 const { promises: fs } = require('fs')
                 const commit = await fs.readFile('lift-commit', 'utf8')
                 console.log('Commit for comment: ' + commit)
-                console.log('context: ' + context)
                 const comments = await fs.readFile('github-comments.json', 'utf8')
                 console.log('Comments string (raw): ' + comments)
                 for(const comment of JSON.parse(comments)) {
