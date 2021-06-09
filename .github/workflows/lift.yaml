@@ -100,7 +100,7 @@ jobs:
         - name: Post comments
           uses: actions/github-script@v4
           with:
-            github-token: foobar
+            github-token: ${{secrets.GITHUB_TOKEN}}
             script: |
                 const { promises: fs } = require('fs')
                 const commit = await fs.readFile('lift-commit', 'utf8')
