@@ -108,7 +108,7 @@ jobs:
                 const comments = await fs.readFile('github-comments.json', 'utf8')
                 console.log('Comments string (raw): ' + comments)
                 for(const comment of JSON.parse(comments)) {
-                    console.log('Comment: ' + comment)
+                    console.log('Comment: ' + JSON.stringify(comment))
                     github.pulls.createReviewComment({
                         ...comment,
                         owner: context.repo.owner,
